@@ -14,6 +14,7 @@ class MyGraph:
         # graph, store the parent of node
         self.color = [0] * (n_nodes + 1)
         self.par = [0] * (n_nodes + 1)
+        self.size_cycles = [0] * (n_nodes + 1)
 
         # mark with unique numbers
         self.mark = [0] * (n_edges + 1)
@@ -53,12 +54,14 @@ class MyGraph:
             self.n_cycles += 1
             cur = p
             mark[cur] = self.n_cycles
+            self.size_cycles[self.n_cycles] += 1
 
             # backtrack the vertex which are
             # in the current cycle thats found
             while cur != u:
                 cur = par[cur]
                 mark[cur] = self.n_cycles
+                self.size_cycles[self.n_cycles] += 1
 
             return
 
@@ -81,7 +84,8 @@ class MyGraph:
     def calc_circles(self):
 
         # call DFS to mark the cycles
-        self.dfs_cycle(1, 0, self.color, self.mark, self.par)
+        if self.n_nodes>0:
+            self.dfs_cycle(1, 0, self.color, self.mark, self.par)
 
         for i in range(1, self.n_edges + 1):
             if self.mark[i] != 0:
@@ -90,12 +94,15 @@ class MyGraph:
         return self.cycles
 
     def n_spanningtree(self):
+        if self.n_nodes==0:
+            return 0
+
         if not self.is_connected():
             return 0
 
         n = 1
         for i in range(1, self.n_cycles + 1):
-            n *= len(self.cycles[i])
+            n *= self.size_cycles[i]
         return n
 
     # Function to print the cycles
@@ -105,6 +112,7 @@ class MyGraph:
 
             # Print the i-th cycle
             print("Cycle Number %d:" % i, end=" ")
+            print("orignal size: {}".format(self.size_cycles[i]))
             for x in self.cycles[i]:
                 print(x, end=" ")
             print()
@@ -145,8 +153,8 @@ def test():
 
 def test_cases():
     g = MyGraph(0, 0)
-    # g.calc_circles()
-    # assert g.n_spanningtree() == 0
+    g.calc_circles()
+    assert g.n_spanningtree() == 0
 
     g = MyGraph(1, 0)
     g.calc_circles()
@@ -212,5 +220,5 @@ def main():
 
 # Driver Code
 if __name__ == "__main__":
-    # main()
-    test_cases()
+    main()
+    # test_cases()
